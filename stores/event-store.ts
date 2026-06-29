@@ -1,9 +1,9 @@
 "use client";
 
 import { create } from "zustand";
-import type { AgentStatus, ToolEvent } from "@/types/tool-event";
+import type { AgentStatus, ToolEvent, ToolEventType } from "@/types/tool-event";
 
-type EventStore = {
+export type EventStore = {
   events: ToolEvent[];
   addEvent: (event: ToolEvent) => void;
   updateEvent: (id: string, patch: Partial<ToolEvent>) => void;
@@ -32,6 +32,21 @@ export const useEventStore = create<EventStore>((set) => ({
 
 export const selectLatestEvent = (state: EventStore) =>
   state.events.at(-1) ?? null;
+
+export const selectRunningEvents = (state: EventStore) =>
+  state.events.filter((event) => event.status === "running");
+
+export const selectEventCountsByType = (state: EventStore) =>
+  state.events.reduce<Partial<Record<ToolEventType, number>>>(
+    (counts, event) => {
+      counts[event.type] = (counts[event.type] ?? 0) + 1;
+      return counts;
+    },
+    {},
+  );
+
+export const selectFailedEvents = (state: EventStore) =>
+  state.events.filter((event) => event.status === "error");
 
 export const selectAgentStatus = (state: EventStore): AgentStatus => {
   if (state.events.some((event) => event.status === "running")) {

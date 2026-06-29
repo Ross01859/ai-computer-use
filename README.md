@@ -63,6 +63,14 @@ pnpm dev
 
 Open `http://localhost:3000`.
 
+Run the verification checks:
+
+```bash
+pnpm test
+pnpm lint
+pnpm build
+```
+
 ## Environment Variables
 
 | Variable | Required | Description |

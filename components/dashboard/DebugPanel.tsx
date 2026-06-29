@@ -1,37 +1,27 @@
 "use client";
 
-import { useMemo } from "react";
+import { useShallow } from "zustand/react/shallow";
 import {
   selectAgentStatus,
+  selectEventCountsByType,
+  selectFailedEvents,
   selectLatestEvent,
+  selectRunningEvents,
   selectTotalEvents,
   useEventStore,
 } from "@/stores/event-store";
 import { useUIStore } from "@/stores/ui-store";
-import type { ToolEventType } from "@/types/tool-event";
 
 export function DebugPanel() {
   const events = useEventStore((state) => state.events);
   const agentStatus = useEventStore(selectAgentStatus);
   const totalEvents = useEventStore(selectTotalEvents);
   const latestEvent = useEventStore(selectLatestEvent);
+  const runningEvents = useEventStore(useShallow(selectRunningEvents));
+  const failedEvents = useEventStore(useShallow(selectFailedEvents));
+  const countsByType = useEventStore(useShallow(selectEventCountsByType));
   const isDebugOpen = useUIStore((state) => state.isDebugOpen);
   const setDebugOpen = useUIStore((state) => state.setDebugOpen);
-  const failedEventCount = useMemo(
-    () => events.filter((event) => event.status === "error").length,
-    [events],
-  );
-  const countsByType = useMemo(
-    () =>
-      events.reduce(
-        (counts, event) => {
-          counts[event.type] = (counts[event.type] ?? 0) + 1;
-          return counts;
-        },
-        {} as Partial<Record<ToolEventType, number>>,
-      ),
-    [events],
-  );
 
   return (
     <details
@@ -43,10 +33,11 @@ export function DebugPanel() {
         Debug
       </summary>
       <div className="mt-3 grid gap-3">
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           <Metric label="Status" value={agentStatus} />
           <Metric label="Events" value={String(totalEvents)} />
-          <Metric label="Failed" value={String(failedEventCount)} />
+          <Metric label="Running" value={String(runningEvents.length)} />
+          <Metric label="Failed" value={String(failedEvents.length)} />
         </div>
 
         <section>
