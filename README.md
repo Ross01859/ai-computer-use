@@ -1,4 +1,4 @@
-Author: [Your Full Name]
+Author: Raycen Wang
 
 # AI Agent Dashboard
 
